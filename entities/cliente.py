@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import UUID, Column, DateTime, ForeignKey, func
+from sqlalchemy import UUID, Column, ForeignKey, func
 from sqlalchemy.orm import relationship
 from database.config import Base
 from pydantic import BaseModel, Field
@@ -9,10 +9,10 @@ from datetime import datetime
 class Cliente(Base):
     __tablename__ = 'cliente'
 
-    id_cliente = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid1)
+    id_cliente = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     id_usuario = Column(UUID(as_uuid=True), ForeignKey('usuario.id_usuario'))
-    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
-    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
+    fecha_creacion = Column(datetime(timezone=True), server_default=func.now())
+    fecha_edicion = Column(datetime(timezone=True), onupdate=func.now())
     
     usuario = relationship("Usuario", back_populates="cliente", uselist=False)
     reservas = relationship("Reserva", back_populates="cliente")

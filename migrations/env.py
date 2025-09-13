@@ -11,7 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from database.config import Base
 from entities.administrador import Administrador
-from entities.clientes import Cliente
+from entities.cliente import Cliente
 from entities.usuario import Usuario
 from entities.tipo_habitacion import Tipo_Habitacion
 from entities.habitacion import Habitacion

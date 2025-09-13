@@ -1,14 +1,15 @@
 import uuid
-from sqlalchemy import UUID, Column, DateTime, ForeignKey
+from sqlalchemy import UUID, Column, ForeignKey
 from sqlalchemy.orm import relationship
 from database.config import Base
 from pydantic import BaseModel, Field
 from typing import Optional, List
+from datetime import datetime
 
 class Administrador(Base):
     __tablename__ = 'administrador'
 
-    id_administrador = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid1)
+    id_administrador = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     id_usuario = Column(UUID(as_uuid=True), ForeignKey('usuario.id_usuario'))
     
     usuario = relationship("Usuario", back_populates="administrador")
@@ -26,13 +27,13 @@ class AdministradorUpdate(BaseModel):
 
 class AdministradorResponse(AdministradorBase):
     id_administrador: UUID
-    fecha_creacion: DateTime
-    fecha_edicion: Optional[DateTime] = None
+    fecha_creacion: datetime
+    fecha_edicion: Optional[datetime] = None
 
     class Config:
         from_attributes = True
         json_encoders = {
-            DateTime: lambda v: v.isoformat()
+            datetime: lambda v: v.isoformat()
         }
         
 class AdministradorListResponse(BaseModel):

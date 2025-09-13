@@ -18,7 +18,6 @@ class Reserva_Servicios(Base):
 
 class ReservaServicioBase(BaseModel):
     id_reserva: UUID
-    id_servicio: UUID
 class ReservaServicioCreate(ReservaServicioBase):
     pass
 

@@ -1,9 +1,10 @@
-from sqlalchemy import String, Column, Boolean
+from sqlalchemy import String, Column, func
 from sqlalchemy.orm import declarative_base
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -17,8 +18,8 @@ class Usuario(Base):
     tipo_usuario = Column(String(20), nullable=False) 
     nombre_usuario = Column(String(50), nullable=False, unique=True)
     clave = Column(String(10), nullable=False)
-    fecha_creacion = Column(String, nullable=False)
-    fecha_edicion = Column(String, nullable=True)
+    fecha_creacion = Column(datetime(timezone=True), server_default=func.now(), nullable=False)
+    fecha_edicion = Column(datetime(timezone=True), onupdate=func.now(), nullable=True)
 
     def __repr__(self):
         return f"<Usuario(id={self.id_usuario}, nombre_usuario={self.nombre_usuario})>"
@@ -31,8 +32,8 @@ class UsuarioBase(BaseModel):
     tipo_usuario: str = Field(..., min_length=1, max_length=20)
     nombre_usuario: str = Field(..., min_length=1, max_length=50)
     clave: str = Field(..., min_length=1, max_length=10)
-    fecha_creacion: Optional[str] = None
-    fecha_edicion: Optional[str] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
 
     @validator('telefono')
     def telefono_valido(cls, v):
@@ -44,15 +45,15 @@ class UsuarioCreate(UsuarioBase):
     pass
 
 class UsuarioUpdate(UsuarioBase):
-    id_usuario: Optional[uuid.UUID] = None
+    id_usuario: Optional[UUID] = None
     nombre: Optional[str] = None
     apellidos: Optional[str] = None
     telefono: Optional[str] = None
     tipo_usuario: Optional[str] = None
     nombre_usuario: Optional[str] = None
     clave: Optional[str] = None
-    fecha_creacion: Optional[str] = None
-    fecha_edicion: Optional[str] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
 
     @validator('telefono')
     def telefono_valido(cls, v):
@@ -68,8 +69,8 @@ class UsuarioResponse(UsuarioBase):
     tipo_usuario: str
     nombre_usuario: str
     clave: str
-    fecha_creacion: Optional[str] = None
-    fecha_edicion: Optional[str] = None
+    fecha_creacion: Optional[datetime] = None
+    fecha_edicion: Optional[datetime] = None
     
     class Config:
         from_attributes = True
