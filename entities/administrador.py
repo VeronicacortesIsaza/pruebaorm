@@ -1,48 +1,38 @@
-from sqlalchemy import Column, Integer, ForeignKey
+import uuid
+from sqlalchemy import UUID, Column, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from database.config import Base
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import datetime
 
 class Administrador(Base):
     __tablename__ = 'administrador'
 
-    id_administrador = Column(Integer, primary_key=True)
-    id_usuario = Column(Integer, ForeignKey('usuario.id_usuario'))
+    id_administrador = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid1)
+    id_usuario = Column(UUID(as_uuid=True), ForeignKey('usuario.id_usuario'))
     
     usuario = relationship("Usuario", back_populates="administrador")
 
 class AdministradorBase(BaseModel):
-    id_usuario: int = Field(..., gt=0, description="Numero de documento del administrador")
+    id_usuario: UUID = Field(..., description="ID único del usuario administrador")
 
-    @validator('id_usuario')
-    def id_usuario_positivo(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError('El ID de usuario debe ser un número positivo')
-        return v
 
 class AdministradorCreate(AdministradorBase):
     pass
 
 class AdministradorUpdate(BaseModel):
-    id_usuario: Optional[int] = Field(None, gt=0)
+    id_usuario: Optional[UUID] = Field(None)
 
-    @validator('id_usuario')
-    def id_usuario_positivo(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError('El ID de usuario debe ser un número positivo')
-        return v
 
 class AdministradorResponse(AdministradorBase):
-    id_administrador: int
-    fecha_creacion: datetime
-    fecha_edicion: Optional[datetime] = None
+    id_administrador: UUID
+    fecha_creacion: DateTime
+    fecha_edicion: Optional[DateTime] = None
 
     class Config:
-        orm_mode = True
+        from_attributes = True
         json_encoders = {
-            datetime: lambda v: v.isoformat()
+            DateTime: lambda v: v.isoformat()
         }
         
 class AdministradorListResponse(BaseModel):

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, UUID, ForeignKey
 from sqlalchemy.orm import relationship
 from database.config import Base
 from pydantic import BaseModel
@@ -7,8 +7,8 @@ from typing import List
 class Reserva_Servicios(Base):
     __tablename__ = 'reserva_servicios'
 
-    id_reserva = Column(Integer, ForeignKey('reserva.id_reserva'), primary_key=True)
-    id_servicio = Column(Integer, ForeignKey('servicios_adicionales.id_servicio'), primary_key=True)
+    id_reserva = Column(UUID(as_uuid=True), ForeignKey('reserva.id_reserva'), primary_key=True)
+    id_servicio = Column(UUID(as_uuid=True), ForeignKey('servicios_adicionales.id_servicio'), primary_key=True)
 
     reserva = relationship("Reserva", back_populates="servicios")
     servicio = relationship("Servicios_Adicionales", back_populates="reserva")
@@ -17,8 +17,8 @@ class Reserva_Servicios(Base):
         return f"<Reserva_Servicios(id_reserva={self.id_reserva}, id_servicio={self.id_servicio})>"
 
 class ReservaServicioBase(BaseModel):
-    id_reserva: int
-    id_servicio: int
+    id_reserva: UUID
+    id_servicio: UUID
 class ReservaServicioCreate(ReservaServicioBase):
     pass
 

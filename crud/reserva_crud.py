@@ -1,7 +1,5 @@
 from sqlalchemy.orm import Session
 from entities.reserva import Reserva
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 class ReservaCRUD:
     @staticmethod

@@ -1,7 +1,5 @@
 from sqlalchemy.orm import Session
-from entities.clientes import Cliente
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from entities.cliente import Cliente
 
 class ClienteCRUD:
     @staticmethod

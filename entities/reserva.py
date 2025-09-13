@@ -1,37 +1,37 @@
-from sqlalchemy import Column, Integer, String, Date, Float, ForeignKey, DateTime, func
+from sqlalchemy import UUID, Column, Integer, String, Date, Float, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from database.config import Base
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
-from datetime import datetime
+import uuid
 
 class Reserva(Base):
     __tablename__ = 'reserva'
 
-    id_reserva = Column(Integer, primary_key=True)
+    id_reserva = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid1)
+    id_cliente = Column(UUID(as_uuid=True), ForeignKey('cliente.id_cliente'))
+    id_habitacion = Column(UUID(as_uuid=True), ForeignKey('habitacion.id_habitacion'))
     fecha_entrada = Column(Date)
     fecha_salida = Column(Date)
     estado_reserva = Column(String)
     numero_de_personas = Column(Integer)
     noches = Column(Integer)
     costo_total = Column(Float)
-    id_cliente = Column(Integer, ForeignKey('cliente.id_cliente'))
-    id_habitacion = Column(Integer, ForeignKey('habitacion.id_habitacion'))
-    id_usuario_crea = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=False)
-    id_usuario_edita = Column(Integer, ForeignKey("usuarios.id_usuario"), nullable=True)
+    id_usuario_crea = Column(UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=False)
+    id_usuario_edita = Column(UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=True)
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
     
 
-    cliente = relationship("Cliente", back_populates="reserva")
-    habitacion = relationship("Habitacion", back_populates="reserva")
+    cliente = relationship("Cliente", back_populates="reservas")
+    habitacion = relationship("Habitacion", back_populates="reservas")
     servicios = relationship("Reserva_Servicios", back_populates="reserva")
     
 class ReservaBase(BaseModel):
     id_reserva: int = Field(..., gt=0)
     id_servicio: int = Field(..., gt=0)
-    fecha_entrada: datetime
-    fecha_salida: datetime
+    fecha_entrada: DateTime
+    fecha_salida: DateTime
     estado_reserva: str = Field(..., min_length=1, max_length=50)
     numero_de_personas: int = Field(..., gt=0)
     noches: int = Field(..., gt=0)
@@ -77,7 +77,7 @@ class ReservaBase(BaseModel):
         return v
     @validator('fecha_entrada')
     def fecha_entrada_no_pasada(cls, v):
-        if v < datetime.now().date():
+        if v < DateTime.now().date():
             raise ValueError('La fecha de entrada no puede ser en el pasado')
         return v
     
@@ -87,19 +87,14 @@ class ReservaCreate(ReservaBase):
 class ReservaUpdate(ReservaBase):
     id_reserva: Optional[int] = None
     id_servicio: Optional[int] = None
-    
-
-    @validator('id_reserva')
-    def id_reserva_positivo(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError('El ID de reserva debe ser un número positivo')
-        return v
-
-    @validator('id_servicio')
-    def id_servicio_positivo(cls, v):
-        if v is not None and v <= 0:
-            raise ValueError('El ID de servicio debe ser un número positivo')
-        return v
+    estado_reserva: Optional[str] = None
+    numero_de_personas: Optional[int] = None
+    noches: Optional[int] = None
+    costo_total: Optional[float] = None
+    id_cliente: Optional[int] = None
+    id_habitacion: Optional[int] = None
+    fecha_salida: Optional[DateTime] = None
+    fecha_entrada: Optional[DateTime] = None
     
     @validator('estado_reserva')
     def estado_reserva_no_vacio(cls, v):
@@ -126,28 +121,28 @@ class ReservaUpdate(ReservaBase):
         return v
     @validator('fecha_entrada')
     def fecha_entrada_no_pasada(cls, v):
-        if v < datetime.now().date():
+        if v < DateTime.now().date():
             raise ValueError('La fecha de entrada no puede ser en el pasado')
         return v
 
 class Reserva_ServiciosResponse(ReservaBase):
-    id_reserva: int
-    id_servicio: int
-    fecha_entrada: datetime
-    fecha_salida: datetime
+    id_reserva: UUID
+    id_servicio: UUID
+    fecha_entrada: DateTime
+    fecha_salida: DateTime
     estado_reserva: str
     numero_de_personas: int
     noches: int
     costo_total: float
-    id_cliente: int
-    id_habitacion: int
-    fecha_creacion: datetime
-    fecha_edicion: Optional[datetime] = None
+    id_cliente: UUID
+    id_habitacion: UUID
+    fecha_creacion: DateTime
+    fecha_edicion: Optional[DateTime] = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
         json_encoders = {
-            datetime: lambda v: v.isoformat()
+            DateTime: lambda v: v.isoformat()
         }
 
 

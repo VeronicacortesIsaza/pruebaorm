@@ -1,7 +1,5 @@
 from sqlalchemy.orm import Session
 from entities.tipo_habitacion import Tipo_Habitacion
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
 class TipoHabitacionCRUD:
     @staticmethod
