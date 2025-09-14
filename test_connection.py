@@ -6,7 +6,10 @@ import sys
 
 from database.config import DATABASE_URL, engine
 from sqlalchemy import text
+from database.config import Base
 
+def create_tables():
+    Base.metadata.create_all(bind=engine)
 
 def test_connection():
     """Probar la conexión a la base de datos"""
@@ -80,48 +83,6 @@ def test_tables():
     return True
 
 
-def create_admin_user():
-    """Crear usuario administrador por defecto"""
-    print("\n=== CREANDO USUARIO ADMINISTRADOR ===\n")
-
-    try:
-        from database.config import SessionLocal
-        from entities.usuario import Usuario
-
-        db = SessionLocal()
-
-        # Verificar si ya existe un admin
-        admin_exists = db.query(Usuario).filter(Usuario.es_admin == True).first()
-
-        if admin_exists:
-            print(f"[OK] Usuario administrador ya existe: {admin_exists.email}")
-            db.close()
-            return True
-
-        # Crear usuario admin
-        admin_user = Usuario(
-            nombre="Administrador",
-            email="admin@system.com",
-            telefono="000-000-0000",
-            activo=True,
-            es_admin=True,
-        )
-
-        db.add(admin_user)
-        db.commit()
-        db.refresh(admin_user)
-
-        print(f"[OK] Usuario administrador creado exitosamente")
-        print(f"     ID: {admin_user.id_usuario}")
-        print(f"     Email: {admin_user.email}")
-        print(f"     Nombre: {admin_user.nombre}")
-
-        db.close()
-        return True
-
-    except Exception as e:
-        print(f"[ERROR] Error creando usuario administrador: {e}")
-        return False
 
 
 if __name__ == "__main__":
@@ -133,8 +94,6 @@ if __name__ == "__main__":
         # Probar creacion de tablas
         if test_tables():
             print("\n" + "=" * 50)
-            # Crear usuario administrador
-            create_admin_user()
 
         print("\n[SUCCESS] Configuracion completada!")
         print("Ahora puedes ejecutar:")
@@ -143,3 +102,11 @@ if __name__ == "__main__":
     else:
         print("\n[ERROR] No se pudo establecer la conexion")
         sys.exit(1)
+        
+    with engine.connect() as connection:
+        result = connection.execute(text(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';"
+        ))
+        print("Tablas en la BD Neon:")
+        for row in result:
+            print(" -", row[0])

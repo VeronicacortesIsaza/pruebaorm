@@ -1,14 +1,18 @@
 """
 Configuración del entorno de Alembic
 """
+
 import os
 import sys
 from logging.config import fileConfig
+
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+# Agregar el directorio raíz al path para importar los modelos
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+# Importar los modelos para que Alembic los detecte
 from database.config import Base
 from entities.administrador import Administrador
 from entities.cliente import Cliente
@@ -18,7 +22,6 @@ from entities.habitacion import Habitacion
 from entities.reserva import Reserva
 from entities.reserva_servicios import Reserva_Servicios
 from entities.servicios_adicionales import Servicios_Adicionales
-
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

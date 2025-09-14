@@ -1,45 +1,50 @@
-import uuid
-from sqlalchemy import UUID, Column, ForeignKey
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import relationship
 from database.config import Base
-from pydantic import BaseModel, Field
-from typing import Optional, List
-from datetime import datetime
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from pydantic import BaseModel, validator
+from typing import List, Optional
+from entities.usuario import Usuario
 
 class Administrador(Base):
-    __tablename__ = 'administrador'
+    __tablename__ = "administrador"
 
-    id_administrador = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    id_usuario = Column(UUID(as_uuid=True), ForeignKey('usuario.id_usuario'))
-    
+    id_admin = Column(UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), primary_key=True, default=uuid.uuid4)
+
     usuario = relationship("Usuario", back_populates="administrador")
 
+    def __repr__(self):
+        return f"<Administrador(id={self.id_admin})>"
+
 class AdministradorBase(BaseModel):
-    id_usuario: UUID = Field(..., description="ID único del usuario administrador")
+    id_admin: uuid.UUID
 
+    @validator('id_admin')
+    def validar_tipo_usuario_administrador(cls, v, values, **kwargs):
+        if 'tipo_usuario' in values and values['tipo_usuario'] != 'administrador':
+            raise ValueError('El usuario asociado debe ser de tipo administrador')
+        return v
 
-class AdministradorCreate(AdministradorBase):
-    pass
+class AdministradorResponse(BaseModel):
+    id_admin: uuid.UUID
+    nombre: str
+    apellidos: str
+    telefono: Optional[str] = None
+    fecha_creacion: str
 
-class AdministradorUpdate(BaseModel):
-    id_usuario: Optional[UUID] = Field(None)
-
-
-class AdministradorResponse(AdministradorBase):
-    id_administrador: UUID
-    fecha_creacion: datetime
-    fecha_edicion: Optional[datetime] = None
-
-    class Config:
-        from_attributes = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
+    model_config = {
+        "from_attributes": True,
+        "arbitrary_types_allowed": True,
+        "json_encoders": {
+            uuid.UUID: str
         }
-        
+    }
+
 class AdministradorListResponse(BaseModel):
-    """Esquema para lista de administradores"""
     administradores: List[AdministradorResponse]
-    
+
     class Config:
+        orm_mode = True
         from_attributes = True
 

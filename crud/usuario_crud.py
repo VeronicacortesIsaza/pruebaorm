@@ -1,15 +1,26 @@
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
-from entities.usuario import Usuario
+from sqlalchemy.orm import Session
+from entities.usuario import Usuario, UsuarioCreate
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 class UsuarioCRUD:
     @staticmethod
-    def crear_usuario(db: Session, usuario: Usuario):
-        db.add(usuario)
+    def crear_usuario(db: Session, usuario: UsuarioCreate):
+        existente = db.query(Usuario).filter(Usuario.nombre_usuario == usuario.nombre_usuario).first()
+        if existente:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El nombre de usuario ya está en uso, elige otro"
+            )
+    
+        nuevo_usuario = Usuario(**usuario.dict())
+        db.add(nuevo_usuario)
         db.commit()
-        db.refresh(usuario)
-        return usuario
+        db.refresh(nuevo_usuario)
+        return nuevo_usuario
+
     @staticmethod
     def obtener_usuario(db: Session, id_usuario: int):
         return db.query(Usuario).filter(Usuario.id_usuario == id_usuario).first()
