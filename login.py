@@ -2,17 +2,17 @@ from database.config import SessionLocal
 from entities.usuario import Usuario
 
 def login():
-    session = SessionLocal()
-    try:
+    with SessionLocal() as session:
         user = input("Usuario: ").strip()
         password = input("Contraseña: ").strip()
 
-        usuario = session.query(Usuario).filter_by(nombre_usuario=user, clave=password).first()
+        usuario = session.query(Usuario).filter_by(
+            nombre_usuario=user, clave=password
+        ).first()
+
         if usuario:
             print(f"Bienvenido {usuario.nombre_usuario}")
-            return True
+            return usuario
         else:
             print("Usuario o contraseña incorrectos.")
-            return False
-    finally:
-        session.close()
+            return None

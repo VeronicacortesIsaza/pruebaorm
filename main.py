@@ -4,8 +4,9 @@ from entities.habitacion import Habitacion
 from entities.reserva import Reserva
 from entities.reserva_servicios import Reserva_Servicios
 from entities.servicios_adicionales import Servicios_Adicionales
+from datetime import date, timedelta
 
-def menu():
+def menu(usuario):
     session = SessionLocal()
     try:
         while True:
@@ -28,11 +29,11 @@ def menu():
                     print("Debes ingresar un número válido.")
 
             if opcion == 1:
-                reservar_habitacion(session)
+                reservar_habitacion(session, usuario)
             elif opcion == 2:
-                cancelar_reserva(session)
+                cancelar_reserva(session, usuario)
             elif opcion == 3:
-                mostrar_reservas(session)
+                mostrar_reservas(session, usuario)
             elif opcion == 4:
                 print("Saliendo...")
                 break
@@ -40,10 +41,9 @@ def menu():
                 print("Opción inválida.")
     finally:
         session.close()
-from datetime import date, timedelta
 
-def reservar_habitacion(session, sesion_actual):
-    if not sesion_actual:
+def reservar_habitacion(session, usuario):
+    if not usuario:
         print("Debes iniciar sesión como cliente para reservar.")
         return
 
@@ -56,6 +56,16 @@ def reservar_habitacion(session, sesion_actual):
             print("Debe ser mayor a cero.")
         else:
             print("Debes ingresar un número válido.")
+    while True:
+        numero_de_personas = input("Número de personas: ")
+        if numero_de_personas.isdigit():
+            numero_de_personas = int(numero_de_personas)
+            if numero_de_personas > 0:
+                break
+            print("Debe ser mayor a cero.")
+        else:
+            print("Debes ingresar un número válido.")
+
 
     print("\nTipos de habitación:")
     print("1. Estándar ($200000/noche)")
@@ -71,82 +81,122 @@ def reservar_habitacion(session, sesion_actual):
             print("Debes seleccionar entre 1 y 3.")
         else:
             print("Debes ingresar un número válido.")
+    opciones_tipo = {
+        1: "Estándar",
+        2: "Suite",
+        3: "Premium"
+    }
+    tipo = opciones_tipo[tipo]
     habitacion = session.query(Habitacion).filter_by(tipo=tipo, disponible=True).first()
-    if habitacion:
-        precio_noche = habitacion.precio
-        total = precio_noche * noches
-    else:
+    if not habitacion:
         print("No hay habitaciones disponibles de ese tipo.")
         return
 
+    precio_noche = habitacion.precio
+    total = precio_noche * noches
     fecha_entrada = date.today()
     fecha_salida = fecha_entrada + timedelta(days=noches)
     fecha_creacion = date.today()
+
     print(f"\nFecha entrada: {fecha_entrada}")
     print(f"Fecha salida: {fecha_salida}")
     print(f"Total: {noches} noches x ${precio_noche:,} = ${total:,}")
 
-    confirmar = input("¿Desea confirmar la reserva? (s/n): ").lower()
-    if confirmar != "s":
-        print("Reserva cancelada.")
-        return
+    
+    while True:
+        confirmar = input("¿Desea confirmar la reserva? (1. Sí / 2. No): ")
+        if confirmar.isdigit():
+            confirmar = int(confirmar)
+            if confirmar in (1, 2):
+                break
+            else:
+                print("Opción inválida. Debe ser 1 o 2.")
+        else:
+            print("Debes ingresar un número válido.")
 
+    if confirmar == 2:
+        print("Reserva cancelada")
+        return
+    
     reserva = Reserva(
-        id_cliente=sesion_actual.id_cliente,
+        id_cliente=usuario.id_usuario,
         id_habitacion=habitacion.id_habitacion,
         fecha_entrada=fecha_entrada,
         fecha_salida=fecha_salida,
         estado_reserva="Activa",
+        numero_de_personas=numero_de_personas,
         noches=noches,
         costo_total=total,
-        id_usuario_crea=sesion_actual.id_cliente,
+        id_usuario_crea=usuario.id_usuario,
         fecha_creacion=fecha_creacion
     )
 
     habitacion.disponible = False
     session.add(reserva)
     session.commit()
-    
-    print("¿Deseas servicios adicionales? (Si/No)")
-    sele = input().strip().lower()  
 
-    if sele in {"si", "s"}:
-        reservar_servicios(session, sesion_actual)
-    elif sele in {"no", "n"}:
-        print("No se agregarán servicios adicionales.")
-    else:
-        print("Respuesta inválida. Debes ingresar 'Si' o 'No'.")
-
-
-    print(f"\nReserva creada para {sesion_actual.usuario.nombre} {sesion_actual.usuario.apellidos}")
+    print(f"\nReserva creada para {usuario.nombre} {usuario.apellidos}")
     print(f"Habitación {habitacion.numero} - Total: ${total:,}")
     print(f"Del {fecha_entrada} al {fecha_salida}")
 
-def cancelar_reserva(session):
-    correo = input("Ingrese correo del cliente para cancelar la reserva: ")
-    reserva = session.query(Reserva).filter_by(correo=correo).first()
-    if reserva:
-        reserva.habitacion.disponible = True
-        session.delete(reserva)
-        session.commit()
-        print("Reserva cancelada.")
-    else:
-        print("No se encontró la reserva.")
+    if input("¿Deseas servicios adicionales? (s/n): ").lower() == "s":
+        reservar_servicios(session, usuario)
 
-def mostrar_reservas(session):
-    reservas = session.query(Reserva).all()
+
+def cancelar_reserva(session, usuario):
+    reservas = session.query(Reserva).filter_by(
+        id_cliente=usuario.id_usuario, estado_reserva="Activa"
+    ).all()
+
     if not reservas:
-        print("No hay reservas registradas.")
-        return
-    for r in reservas:
-        print(f"{r.cliente} - {r.documento} - {r.habitacion.tipo} - {r.noches} noches")
-    
-def reservar_servicios(session, cliente_actual):
-    if not cliente_actual:
-        print("Debes iniciar sesión para reservar servicios.")
+        print("No tienes reservas activas.")
         return
 
-    reservas = session.query(Reserva).filter_by(id_cliente=cliente_actual.id_cliente).all()
+    print("Tus reservas activas:")
+    for i, reserva in enumerate(reservas, 1):
+        habitacion = session.query(Habitacion).get(reserva.id_habitacion)
+        print(f"{i}. Habitación {habitacion.numero} del {reserva.fecha_entrada} al {reserva.fecha_salida} - Total: ${reserva.costo_total:,.0f}")
+
+    opcion = input("Selecciona el número de la reserva que deseas cancelar: ")
+    try:
+        opcion = int(opcion)
+        if opcion < 1 or opcion > len(reservas):
+            print("Opción inválida.")
+            return
+    except ValueError:
+        print("Debes ingresar un número.")
+        return
+
+    reserva = reservas[opcion - 1]
+
+    confirm = input(f"¿Seguro que deseas cancelar la reserva de la habitación {habitacion.numero}? (s/n): ").lower()
+    if confirm == "s":
+        habitacion = session.query(Habitacion).get(reserva.id_habitacion)
+        habitacion.disponible = True
+
+        reserva.estado_reserva = "Cancelada"
+        reserva.fecha_edicion = date.today()
+        reserva.id_usuario_edita = usuario.id_usuario
+
+        session.commit()
+        print("Reserva cancelada con éxito.")
+    else:
+        print("Cancelación abortada.")
+
+    
+def mostrar_reservas(session, usuario):
+    reservas = session.query(Reserva).filter_by(id_cliente=usuario.id_usuario).all()
+    if not reservas:
+        print("No tienes reservas registradas.")
+        return
+
+    print("\nTus reservas:")
+    for r in reservas:
+        print(f"Habitación {r.habitacion.numero} - {r.noches} noches - Estado: {r.estado_reserva}")
+
+
+def reservar_servicios(session, usuario):
+    reservas = session.query(Reserva).filter_by(id_cliente=usuario.id_usuario).all()
     if not reservas:
         print("No tienes reservas activas.")
         return
@@ -158,7 +208,6 @@ def reservar_servicios(session, cliente_actual):
     idx = int(input("Selecciona la reserva a la que agregar servicios: ")) - 1
     reserva_seleccionada = reservas[idx]
 
-    # Mostrar servicios disponibles
     servicios = session.query(Servicios_Adicionales).all()
     print("\nServicios disponibles:")
     for i, s in enumerate(servicios, start=1):
@@ -186,7 +235,9 @@ def reservar_servicios(session, cliente_actual):
 
 
 if __name__ == "__main__":
-    if login():
-        menu()
+    usuario = login()   
+    if usuario:
+        menu(usuario)   
     else:
         print("No se pudo iniciar sesión.")
+
