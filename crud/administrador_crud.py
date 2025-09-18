@@ -1,31 +1,37 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import UUID
 from entities.administrador import Administrador
-from sqlalchemy.ext.asyncio import AsyncSession
 
 class AdministradorCRUD:
+    def __init__(self, db):
+        self.db = db
+        
     @staticmethod
     def crear_administrador(db: Session, administrador: Administrador):
+        if not administrador.id_admin:
+            raise ValueError("El administrador debe estar asociado a un usuario")
+        
         db.add(administrador)
         db.commit()
         db.refresh(administrador)
         return administrador
 
     @staticmethod
-    def obtener_administrador(db: Session, id_administrador: int):
-        return db.query(Administrador).filter(Administrador.id_administrador == id_administrador).first()
+    def obtener_administrador(db: Session, id_admin: UUID):
+        admin = db.query(Administrador).filter(Administrador.id_admin == id_admin).first()
+        if not admin:
+            raise ValueError("Administrador no encontrado")
+        return admin
 
     @staticmethod
-    def actualizar_administrador(db: Session, administrador: Administrador):
-        db.merge(administrador)
+    def obtener_administradores(db: Session, skip: int = 0, limit: int = 100):
+        return db.query(Administrador).offset(skip).limit(limit).all()
+
+    @staticmethod
+    def eliminar_administrador(db: Session, id_admin: UUID) -> bool:
+        admin = db.query(Administrador).filter(Administrador.id_admin == id_admin).first()
+        if not admin:
+            raise ValueError("Administrador no encontrado")
+        db.delete(admin)
         db.commit()
-        return administrador
-
-    @staticmethod
-    def eliminar_administrador(db: Session, id_administrador: int):
-        administrador = db.query(Administrador).filter(Administrador.id_administrador == id_administrador).first()
-        if administrador:
-            db.delete(administrador)
-            db.commit()
-        return administrador
-    
-
+        return True

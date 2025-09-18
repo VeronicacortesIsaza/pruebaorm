@@ -1,12 +1,12 @@
 from sqlalchemy import UUID, Column, DateTime, ForeignKey, String, Float, func
 from sqlalchemy.orm import relationship
 from database.config import Base
-from pydantic import BaseModel, Field, validator
-from typing import Optional, List
 import uuid
-from datetime import datetime
 
 class Servicios_Adicionales(Base):
+    """_
+    Representa la entidad servicios adicionales
+    """    
     __tablename__ = 'servicios_adicionales'
 
     id_servicio = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -18,70 +18,17 @@ class Servicios_Adicionales(Base):
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 
     reservas_servicios = relationship("Reserva_Servicios", back_populates="servicio")
+    usuario_crea = relationship(
+        "Usuario",
+        foreign_keys=[id_usuario_crea],
+        overlaps="usuario_edita"   
+    )
+
+    usuario_edita = relationship(
+        "Usuario",
+        foreign_keys=[id_usuario_edita],
+        overlaps="usuario_crea"
+    )
     
-class Servicios_AdicionalesBase(BaseModel):
-    nombre_servicio: str = Field(..., min_length=1, max_length=100)
-    precio: float = Field(..., ge=0)
-   
-    @validator('nombre_servicio')
-    def nombre_servicio_no_vacio(cls, v):
-        if v is not None and not v.strip():
-            raise ValueError('El nombre del servicio no puede estar vacío')
-        return v.strip() if v else v
-
-    @validator('precio')
-    def precio_no_negativo(cls, v):
-        if v is not None and v < 0:
-            raise ValueError('El precio no puede ser negativo')
-        if v is not None and v > 999999:
-            raise ValueError('El precio es demasiado alto')
-        return v
-    
-class Servicios_AdicionalesCreate(Servicios_AdicionalesBase):
-    pass
-
-class Servicios_AdicionalesUpdate(Servicios_AdicionalesBase):
-    nombre_servicio: Optional[str] = None
-    precio: Optional[float] = None
-    id_usuario_edita: Optional[uuid.UUID] = None
-    fecha_edicion: Optional[datetime] = None
-
-   
-    @validator('nombre_servicio')
-    def nombre_servicio_no_vacio(cls, v):
-        if v is not None and not v.strip():
-            raise ValueError('El nombre del servicio no puede estar vacío')
-        return v.strip() if v else v
-
-    @validator('precio')
-    def precio_no_negativo(cls, v):
-        if v is not None and v < 0:
-            raise ValueError('El precio no puede ser negativo')
-        if v is not None and v > 999999:
-            raise ValueError('El precio es demasiado alto')
-        return v
-class Servicios_AdicionalesResponse(Servicios_AdicionalesBase):
-    id_servicio: uuid.UUID
-    nombre_servicio: str
-    precio: float
-    id_usuario_crea: Optional[uuid.UUID] = None
-    id_usuario_edita: Optional[uuid.UUID] = None
-    fecha_creacion: Optional[datetime] = None
-    fecha_edicion: Optional[datetime] = None
-
-    model_config = {
-        "from_attributes": True,
-        "arbitrary_types_allowed": True,
-        "json_encoders": {
-            datetime: lambda v: v.isoformat() if v else None,
-            uuid.UUID: str 
-        }
-    }
-        
-class Servicios_AdicionalesListResponse(BaseModel):
-    """Esquema para lista de servicios adicionales"""
-    servicios: List[Servicios_AdicionalesResponse]
-
-    class Config:
-        orm_mode = True
-        from_attributes = True
+    def __repr__(self):
+        return f"<Servicios_Adicionales(id={self.id_servicio}, nombre={self.nombre_servicio}, precio={self.precio})>"
