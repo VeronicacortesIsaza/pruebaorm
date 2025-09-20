@@ -9,9 +9,9 @@ class ReservaCRUD:
     def crear_reserva(db: Session, reserva: Reserva):
         if not reserva.id_cliente or not reserva.id_habitacion:
             raise ValueError("La reserva debe estar asociada a un cliente y una habitación")
-        
-        if reserva.fecha_inicio >= reserva.fecha_fin:
-            raise ValueError("La fecha de inicio debe ser anterior a la fecha de fin")
+
+        if reserva.fecha_entrada >= reserva.fecha_salida:
+            raise ValueError("La fecha de entrada debe ser anterior a la fecha de salida")
 
         db.add(reserva)
         db.commit()
@@ -54,3 +54,6 @@ class ReservaCRUD:
         db.delete(reserva)
         db.commit()
         return True
+    
+    def obtener_reservas_activas(self):
+        return self.db.query(Reserva).filter(Reserva.estado_reserva == "Activa").all()
