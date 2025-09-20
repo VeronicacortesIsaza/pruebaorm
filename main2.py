@@ -14,42 +14,6 @@ from typing import Optional
 from datetime import date, timedelta
 
 class SistemaGestion:
-    SistemaGestion
-    Clase principal para la gestión de un hotel mediante una interfaz de consola. 
-    Incluye autenticación de usuarios y funcionalidades para la administración de usuarios, habitaciones, reservas y servicios adicionales.
-    Atributos:
-        db: Sesión de la base de datos.
-        usuario_crud: CRUD para operaciones de usuario.
-        habitacion_crud: CRUD para operaciones de habitación.
-        reserva_crud: CRUD para operaciones de reserva.
-        servicios_adicionales_crud: CRUD para operaciones de servicios adicionales.
-        usuario_actual: Usuario autenticado actualmente.
-    Métodos:
-        __init__(): Inicializa el sistema y los CRUDs.
-        __enter__(): Permite el uso como context manager.
-        __exit__(): Cierra la sesión de la base de datos.
-        mostrar_pantalla_login() -> bool: Muestra la pantalla de login y autentica al usuario.
-        mostrar_menu_principal_autenticado() -> None: Muestra el menú principal según el rol del usuario autenticado.
-        reservar_habitacion(): Permite a un cliente reservar una habitación.
-        cancelar_reserva(): Permite a un cliente cancelar una reserva activa.
-        mostrar_reservas(): Muestra las reservas del usuario autenticado.
-        reservar_servicios(): Permite agregar servicios adicionales a una reserva.
-        ejecutar() -> None: Ejecuta el sistema principal con autenticación y menú.
-        mostrar_menu_habitaciones() -> None: Muestra el menú de gestión de habitaciones.
-        mostrar_menu_reservas() -> None: Muestra el menú de gestión de reservas.
-        mostrar_menu_servicios() -> None: Muestra el menú de gestión de servicios adicionales.
-        mostrar_menu_usuarios() -> None: Muestra el menú de gestión de usuarios.
-        mostrar_menu_perfil(): Muestra la información del perfil del usuario autenticado.
-        agregar_habitacion(): Permite agregar una nueva habitación.
-        listar_habitaciones(): Lista todas las habitaciones registradas.
-        actualizar_habitacion(): Permite actualizar los datos de una habitación.
-        eliminar_habitacion(): Permite eliminar una habitación.
-        listar_reservas(): Lista todas las reservas registradas.
-        listar_reservas_activas(): Lista todas las reservas activas.
-    Uso:
-        Instanciar la clase y llamar al método ejecutar() para iniciar el sistema.
-    """Sistema principal de gestión de hotel con interfaz de consola y autenticación"""
-
     def __init__(self):
         """Inicializar el sistema"""
         self.db = SessionLocal()
