@@ -28,8 +28,8 @@ class TipoHabitacionCRUD:
         return tipo
 
     @staticmethod
-    def obtener_tipos_habitacion(db: Session, skip: int = 0, limit: int = 100):
-        return db.query(Tipo_Habitacion).offset(skip).limit(limit).all()
+    def obtener_tipos_habitacion(db: Session):
+        return db.query(Tipo_Habitacion).all()
 
     @staticmethod
     def eliminar_tipo_habitacion(db: Session, id_tipo: UUID) -> bool:

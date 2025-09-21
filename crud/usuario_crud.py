@@ -1,32 +1,20 @@
 from sqlalchemy.orm import Session
-from sqlalchemy.orm import Session
 from entities.usuario import Usuario
 from sqlalchemy.dialects.postgresql import UUID
 class UsuarioCRUD:
     def __init__(self, db):
         self.db = db
     @staticmethod
-    def crear_usuario(self, nombre: str, apellidos: str, telefono: str, tipo_usuario: str, nombre_usuario: str, clave: str ):
+    def crear_usuario(db: Session, nuevo_usuario: Usuario):
         existente = (
-            self.db.query(Usuario)
-            .filter(Usuario.nombre_usuario == nombre_usuario)
-            .first()
+            db.query(Usuario).filter(Usuario.nombre_usuario == nuevo_usuario.nombre_usuario).first()
         )
         if existente:
-            raise ValueError(f"El nombre de usuario '{nombre_usuario}' ya está en uso.")
+            raise ValueError(f"El nombre de usuario '{Usuario.nombre_usuario}' ya está en uso.")
 
-
-        nuevo_usuario = Usuario(
-            nombre = nombre,
-            apellidos = apellidos,
-            tipo_usuario = tipo_usuario,
-            telefono = telefono,
-            nombre_usuario=nombre_usuario,
-            clave=clave
-        )
-        self.db.add(nuevo_usuario)
-        self.db.commit()
-        self.db.refresh(nuevo_usuario)
+        db.add(nuevo_usuario)
+        db.commit()
+        db.refresh(nuevo_usuario)
         return nuevo_usuario
 
     @staticmethod
@@ -49,8 +37,6 @@ class UsuarioCRUD:
 
         if "nombre_usuario" in kwargs:
             nuevo_nombre = kwargs["nombre_usuario"].strip()
-            if len(nuevo_nombre) == 0:
-                raise ValueError("El nombre de usuario es obligatorio")
             if len(nuevo_nombre) > 50:
                 raise ValueError("El nombre de usuario no puede exceder 50 caracteres")
             existente = db.query(Usuario).filter(Usuario.nombre_usuario == nuevo_nombre).first()
@@ -92,6 +78,6 @@ class UsuarioCRUD:
             .first()
         )
 
-        if usuario and usuario.clave == contrasena:  
+        if usuario and usuario.clave == contrasena:
             return usuario
         return None

@@ -27,8 +27,8 @@ class HabitacionCRUD:
         return habitacion
 
     @staticmethod
-    def obtener_habitaciones(db: Session, skip: int = 0, limit: int = 100):
-        return db.query(Habitacion).offset(skip).limit(limit).all()
+    def obtener_habitaciones(db: Session):
+        return db.query(Habitacion).all()
 
     @staticmethod
     def actualizar_habitacion(db: Session, id_habitacion: UUID, **kwargs):

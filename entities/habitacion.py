@@ -9,7 +9,7 @@ class Habitacion(Base):
     __tablename__ = 'habitacion'
 
     id_habitacion = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    numero = Column(Integer, nullable=False, unique=True, autoincrement=True)
+    numero = Column(Integer, nullable=False, unique=True)
     id_tipo = Column(UUID(as_uuid=True), ForeignKey('tipo_habitacion.id_tipo'), nullable=False)
     tipo = Column(String(20), nullable=False) 
     precio = Column(Float, nullable=False)

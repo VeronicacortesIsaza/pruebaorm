@@ -107,7 +107,8 @@ class SistemaGestion:
             print("3. Gestión de Reservas")
             print("4. Gestión de Servicios Adicionales")
             print("5. Mi Perfil")
-            print("6 Cerrar Sesión")
+            print("6. Actualizar perfil")
+            print("7 Cerrar Sesión")
             while True:
                 opcion = input("Elige una opción (1-7): ")
                 if opcion.isdigit():  
@@ -116,7 +117,7 @@ class SistemaGestion:
                         print("Opción válida:", opcion) 
                         break  
                     else:
-                        print("El número debe estar entre 1 y 4.")
+                        print("El número debe estar entre 1 y 7.")
                 else:
                     print("Debes ingresar un número válido.")
             if opcion == 1:
@@ -128,8 +129,10 @@ class SistemaGestion:
             elif opcion == 4:
                 self.mostrar_menu_servicios()
             elif opcion == 5:
-                self.mostrar_menu_perfil()
-            elif opcion == 6:
+                self.mostrar_perfil()
+            elif opcion == 5:
+                self.actualizar_perfil()
+            elif opcion == 7:
                 print("Cerrando sesión...")
                 self.usuario_actual = None
                 return
@@ -138,16 +141,17 @@ class SistemaGestion:
             print("2. Mostrar Mis Reservas")
             print("3. Cancelar Reserva")
             print("4. Mi Perfil")
-            print("5. Cerrar Sesión")
+            print("5. Actualizar perfil")
+            print("6. Cerrar Sesión")
             while True:
-                opcion = input("Elige una opción (1-5): ")
+                opcion = input("Elige una opción (1-6): ")
                 if opcion.isdigit():  
                     opcion = int(opcion)  
-                    if 1 <= opcion <= 5:
+                    if 1 <= opcion <= 6:
                         print("Opción válida:", opcion) 
                         break  
                     else:
-                        print("El número debe estar entre 1 y 4.")
+                        print("El número debe estar entre 1 y 6.")
                 else:
                     print("Debes ingresar un número válido.")
             if opcion == 1:
@@ -157,8 +161,10 @@ class SistemaGestion:
             elif opcion == 3:
                 self.mostrar_reservas()
             elif opcion == 4:
-                self.mostrar_menu_perfil()
+                self.mostrar_perfil()
             elif opcion == 5:
+                self.actualizar_perfil()
+            elif opcion == 6:
                 print("Saliendo...")
                 self.usuario_actual = None
                 return
@@ -168,9 +174,6 @@ class SistemaGestion:
             print("ERROR: Rol no reconocido. Contacte al administrador.")
         print("=" * 50)
     
-    
-        if input("¿Deseas servicios adicionales? (s/n): ").lower() == "s":
-            Reserva_Servicios()
             
     def reservar_habitacion(self):
         if not self.usuario_actual:
@@ -267,11 +270,12 @@ class SistemaGestion:
         habitacion.disponible = False
         self.db.commit()
 
-          
-
         print(f"\nReserva creada para {self.usuario_actual.nombre} {self.usuario_actual.apellidos}")
         print(f"Habitación {habitacion.numero} - Total: ${total:,}")
         print(f"Del {fecha_entrada} al {fecha_salida}")
+        
+        if input("¿Deseas servicios adicionales? (s/n): ").lower() == "s":
+            Reserva_Servicios()
         
     def cancelar_reserva(self):
         reservas = self.db.query(Reserva).filter_by(
@@ -420,9 +424,8 @@ class SistemaGestion:
         elif opcion == 4:
             self.eliminar_habitacion()
         elif opcion == 5:
-            print("Saliendo...")
-            self.usuario_actual = None
-            return      
+            print("Volviendo al menu principal...")
+            self.mostrar_menu_principal_autenticado()
 
     def mostrar_menu_reservas(self) -> None:
         print("\n--- GESTIÓN DE RESERVAS ---")
@@ -445,9 +448,8 @@ class SistemaGestion:
         elif opcion == 2:                
             self.listar_reservas_activas()
         elif opcion == 3:
-            print("Saliendo...")
-            self.usuario_actual = None
-            return      
+            print("Volviendo al menu principal...")
+            self.mostrar_menu_principal_autenticado()
 
 
 
@@ -476,20 +478,18 @@ class SistemaGestion:
         elif opcion == 3:
             self.mostrar_reservas()
         elif opcion == 4:
-            self.mostrar_menu_perfil()
+            self.mostrar_perfil()
         elif opcion == 5:
-            print("Saliendo...")
-            self.usuario_actual = None
-            return      
+            print("Volviendo al menu principal...")
+            self.mostrar_menu_principal_autenticado()
 
     
     def mostrar_menu_usuarios(self) -> None:
         print("\n--- CONSULTAS Y REPORTES ---")
         print("1. Crear usuario")
         print("2. Listar usuarios")
-        print("3. Editar usuario")
-        print("4. Eliminar usuario")
-        print("5. Volver al menú principal")
+        print("3. Eliminar usuario")
+        print("4. Volver al menú principal")
         while True:
             opcion = input("Elige una opción (1-5): ")
             if opcion.isdigit():  
@@ -502,21 +502,18 @@ class SistemaGestion:
             else:
                 print("Debes ingresar un número válido.")
         if opcion == 1:
-            self.reservar_habitacion()
-        elif opcion == 2:                
-            self.cancelar_reserva()
+            self.crear_usuario()
+        elif opcion == 2:
+            self.listar_usuarios()
         elif opcion == 3:
-            self.mostrar_reservas()
+            self.eliminar_usuario()
         elif opcion == 4:
-            self.mostrar_menu_perfil()
-        elif opcion == 5:
-            print("Saliendo...")
-            self.usuario_actual = None
-            return      
+            print("Volviendo al menú principal...")
+            self.mostrar_menu_principal_autenticado()
 
 
     
-    def mostrar_menu_perfil(self):
+    def mostrar_perfil(self):
         print("\n--- MI PERFIL ---")
         print(f"Nombre: {self.usuario_actual.nombre} {self.usuario_actual.apellidos}")
         print(f"Usuario: {self.usuario_actual.telefono}")
@@ -524,39 +521,87 @@ class SistemaGestion:
         
     def agregar_habitacion(self):
         try:
-            numero = input("Número de la habitación: ")
-            tipo = input("Tipo de habitación (Sencilla/Doble/Suite): ")
-            precio = float(input("Precio por noche: "))
+            rangos = {
+                "Estándar": range(101, 201),
+                "Suite": range(201, 301),
+                "Premium": range(301, 401)
+            }
 
+            tipos_disponibles = TipoHabitacionCRUD.obtener_tipos_habitacion(self.db)
+            print("Tipos de habitación disponibles:")
+            for t in tipos_disponibles:
+                print(f"- {t.nombre_tipo}")
+
+
+            while True:
+                opcion = input("Elige el número del tipo de habitación: ").strip()
+                if opcion.isdigit():
+                    opcion = int(opcion)
+                    if 1 <= opcion <= len(tipos_disponibles):
+                        tipo = tipos_disponibles[opcion - 1]                
+                        break
+                    else:
+                        print("Número inválido. Debe estar en el rango mostrado.")
+                else:
+                    print("Debes ingresar un número válido.")
+
+            habitaciones_existentes = [h.numero for h in HabitacionCRUD.obtener_habitaciones(self.db)]
+
+            numero_asignado = next((n for n in rangos[tipo.nombre_tipo] if n not in habitaciones_existentes), None)
+
+            if not numero_asignado:
+                print(f"No hay más habitaciones disponibles en el rango de {tipo.nombre_tipo}.")
+                return
+
+            while True:
+                try:
+                    precio = float(input("Precio por noche: "))
+                    break
+                except ValueError:
+                    print("Debes ingresar un número válido para el precio.")
             nueva_habitacion = Habitacion(
-                numero=numero,
-                tipo=tipo,
+                numero=numero_asignado,
+                id_tipo=tipo.id_tipo,   
+                tipo=tipo.nombre_tipo,       
                 precio=precio,
-                disponible=True
+                disponible=True,
+                id_usuario_crea=self.usuario_actual.id_usuario
             )
-            self.habitacion_crud.crear_habitacion(nueva_habitacion)
-            print("Habitación agregada exitosamente.")
+
+            self.habitacion_crud.crear_habitacion(self.db, nueva_habitacion)
+            print(f"Habitación {numero_asignado} ({tipo.nombre_tipo}) agregada exitosamente.")
+
         except Exception as e:
             print(f"Error al agregar habitación: {e}")
 
-
     def listar_habitaciones(self):
         try:
-            habitaciones = self.habitacion_crud.obtener_todas()
+            habitaciones = HabitacionCRUD.obtener_habitaciones(self.db)
             if not habitaciones:
                 print("No hay habitaciones registradas.")
             else:
                 for h in habitaciones:
-                    estado = "Disponible" if h.disponible else "Ocupada"
-                    print(f"Nº {h.numero} | {h.tipo} | ${h.precio} | {estado}")
+                    print(f"""
+                    ============================
+                    ID: {h.id_habitacion}
+                    Número: {h.numero}
+                    Tipo: {h.tipo} (ID tipo: {h.id_tipo})
+                    Precio: ${h.precio}
+                    Disponible: {"Sí" if h.disponible else "No"}
+                    Usuario Creador: {h.id_usuario_crea}
+                    Usuario Editor: {h.id_usuario_edita}
+                    Fecha Creación: {h.fecha_creacion}
+                    Fecha Edición: {h.fecha_edicion}
+                    ============================
+                    """)
         except Exception as e:
             print(f"Error al listar habitaciones: {e}")
 
 
-    def actualizar_habitacion(self):
+    def actualizar_habitacion(self): 
         try:
             habitacion_id = input("ID de la habitación a actualizar: ")
-            habitacion = self.habitacion_crud.obtener_por_id(habitacion_id)
+            habitacion = HabitacionCRUD.obtener_habitacion(self.db, habitacion_id)
 
             if not habitacion:
                 print("Habitación no encontrada.")
@@ -564,7 +609,7 @@ class SistemaGestion:
 
             nuevo_precio = float(input(f"Nuevo precio (actual: {habitacion.precio}): "))
             habitacion.precio = nuevo_precio
-            self.habitacion_crud.actualizar_habitacion(habitacion)
+            HabitacionCRUD.actualizar_habitacion(self.db,habitacion)
             print("Habitación actualizada correctamente.")
         except Exception as e:
             print(f"Error al actualizar habitación: {e}")
@@ -573,14 +618,14 @@ class SistemaGestion:
     def eliminar_habitacion(self):
         try:
             habitacion_id = input("ID de la habitación a eliminar: ")
-            self.habitacion_crud.eliminar_habitacion(habitacion_id)
+            HabitacionCRUD.eliminar_habitacion(self.db, habitacion_id)
             print("Habitación eliminada correctamente.")
         except Exception as e:
             print(f"Error al eliminar habitación: {e}")
     
     def listar_reservas(self):
         try:
-            reservas = self.reserva_crud.obtener_reservas()
+            reservas = ReservaCRUD.obtener_reservas()
             if not reservas:
                 print("No hay habitaciones registradas.")
             else:
@@ -592,7 +637,7 @@ class SistemaGestion:
             
     def listar_reservas_activas(self):
         try:
-            reservas = self.reserva_crud.obtener_reservas_activas()
+            reservas = ReservaCRUD.obtener_reservas_activas()
             if not reservas:
                 print("No hay reservas activas.")
             else:
@@ -600,9 +645,114 @@ class SistemaGestion:
                     print(f"Reserva {r.id_reserva} | Cliente: {r.id_cliente} | Habitación: {r.id_habitacion} | {r.fecha_entrada} → {r.fecha_salida} | Estado: {r.estado_reserva}")
         except Exception as e:
             print(f"Error al obtener reservas activas: {e}")
+            
+    def actualizar_perfil(self):
+        try:
+            usuario = UsuarioCRUD.actualizar_usuario(self.db, self.usuario_actual.id_usuario)
+            if not usuario:
+                print("Usuario no encontrado.")
+                return
 
+            print("\n=== ACTUALIZAR PERFIL ===")
+            nuevo_nombre = input(f"Nuevo nombre (actual: {usuario.nombre}) [Enter para mantener]: ").strip()
+            nuevos_apellidos = input(f"Nuevos apellidos (actual: {usuario.apellidos}) [Enter para mantener]: ").strip()
+            nuevo_telefono = input(f"Nuevo teléfono (actual: {usuario.telefono}) [Enter para mantener]: ").strip()
+            nuevo_usuario = input(f"Nuevo nombre de usuario (actual: {usuario.nombre_usuario}) [Enter para mantener]: ").strip()
+            nueva_clave = input("Nueva clave (Enter para mantener): ").strip()
+            cambios = {}
+            if nuevo_nombre:
+                cambios["nombre"] = nuevo_nombre
+            if nuevos_apellidos:
+                cambios["apellidos"] = nuevos_apellidos
+            if nuevo_telefono:
+                cambios["telefono"] = nuevo_telefono
+            if nuevo_usuario:
+                cambios["nombre_usuario"] = nuevo_usuario
+            if nueva_clave:
+                if len(nueva_clave) > 10:
+                    print("La clave no puede exceder 10 caracteres.")
+                    return
+                cambios["clave"] = nueva_clave
+            
+            if cambios:
+                UsuarioCRUD.actualizar_usuario(
+                    self.db,
+                    id_usuario=self.usuario_actual.id_usuario,
+                    id_usuario_edita=self.usuario_actual.id_usuario,
+                    **cambios
+                )
+                print("Perfil actualizado correctamente.")
+            else:
+                print("No se realizaron cambios.")
 
+        except Exception as e:
+            print(f"Error al actualizar perfil: {e}")
+            self.db.rollback()
+            
+    def crear_usuario(self):
+        try:
+            print("\n=== CREAR USUARIO ===")
+            nombre = input("Nombre: ").strip()
+            apellidos = input("Apellidos: ").strip()
+            telefono = input("Teléfono: ").strip()
+            tipo_usuario = input("Tipo de usuario (Administrador/Cliente): ").strip().capitalize()
+            nombre_usuario = input("Nombre de usuario: ").strip()
+            clave = input("Clave (máx. 10 caracteres): ").strip()
 
+            nuevo_usuario = Usuario(
+                nombre=nombre,
+                apellidos=apellidos,
+                telefono=telefono,
+                tipo_usuario=tipo_usuario,
+                nombre_usuario=nombre_usuario,
+                clave=clave
+            )
+
+            UsuarioCRUD.crear_usuario(self.db, nuevo_usuario)
+            print("Usuario creado exitosamente.")
+
+        except Exception as e:
+            print(f"Error al crear usuario: {e}")
+            self.db.rollback()
+            
+    def listar_usuarios(self):
+        try:
+            print("\n=== LISTA DE USUARIOS ===")
+            usuarios = UsuarioCRUD.obtener_usuarios(self.db)
+            if not usuarios:
+                print("No hay usuarios registrados.")
+                return
+            for u in usuarios:
+                print(f"- ID: {u.id_usuario} | Usuario: {u.nombre_usuario} | Tipo: {u.tipo_usuario} | Nombre: {u.nombre} {u.apellidos}")
+        except Exception as e:
+            print(f"Error al listar usuarios: {e}")
+            
+    def eliminar_usuario(self):
+        try:
+            print("\n=== ELIMINAR USUARIO ===")
+            usuarios = UsuarioCRUD.obtener_usuarios(self.db)
+            if not usuarios:
+                print("No hay usuarios registrados.")
+                return
+
+            for i, u in enumerate(usuarios, start=1):
+                print(f"{i}. {u.nombre_usuario} ({u.tipo_usuario})")
+
+            opcion = input("Elige el número del usuario a eliminar: ").strip()
+            if not opcion.isdigit() or int(opcion) < 1 or int(opcion) > len(usuarios):
+                print("Opción inválida.")
+                return
+
+            usuario_a_eliminar = usuarios[int(opcion) - 1]
+            self.usuario_crud.eliminar_usuario(self.db, usuario_a_eliminar.id_usuario)
+            print(f"Usuario '{usuario_a_eliminar.nombre_usuario}' eliminado exitosamente.")
+
+        except Exception as e:
+            print(f"Error al eliminar usuario: {e}")
+            self.db.rollback()
+"""Cuadrar lo ultimo 
+1. poner en listar usar el metodo que tiene usuarios, lo mismo para eliminar. Terminar metodos faltantes aplicar el docstring y hacer el blackformater"""
+#Terminar 
 def main():
     """Función principal"""
     with SistemaGestion() as sistema:
