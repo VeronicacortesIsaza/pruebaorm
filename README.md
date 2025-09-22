@@ -50,19 +50,23 @@ pruebaorm/
 
 ---
 
-### Requisitos Previos
-- Python 3.8 o superior  
-- PostgreSQL (o el motor definido en `config.py`)  
-- Paquetes necesarios (instalar con `pip`):
+## Requisitos Previos
+
+- **Python 3.8 o superior**  
+- **PostgreSQL** (o el motor definido en `database/config.py`)  
+- **Dependencias** (instalarlas con el archivo `requirements.txt`):  
 
 ```bash
-pip install sqlalchemy psycopg2-binary
+pip install -r requirements.txt
 ```
 
-> Opcional: si usas contraseñas cifradas, también se recomienda instalar `bcrypt`.
-
+El archivo `requirements.txt` incluye:  
+- `sqlalchemy`  
+- `psycopg2-binary`  
+- `bcrypt` (opcional, para manejo de contraseñas cifradas)
 
 ---
+
 
 ### Inicio de Sesión
 - El sistema solicitará **nombre de usuario** y **contraseña**.  
@@ -110,9 +114,30 @@ El sistema cubre los siguientes procesos principales:
 ---
 
 ## Cómo Ejecutar el Sistema
-1. Abre una nueva terminal presionando **Control + shift + ñ"
-2. Cambia de rama escribiendo git checkout Prod
-3. Escribe en consola lo siguiente:
+
+1. **Clonar el repositorio**  
+
+```bash
+git clone https://github.com/VeronicacortesIsaza/Sistema-Hotel.git
+cd Sistema-Hotel
+```
+
+2. **Configurar la base de datos**  
+   - Crear una base de datos en PostgreSQL.  
+   - Ajustar las credenciales en `database/config.py`.  
+   - Ejecutar migraciones/creación de tablas:  
+
+   ```bash
+   python -m database.config
+   ```
+
+3. **Instalar dependencias**  
+
+```bash
+pip install -r requirements.txt
+```
+
+4. **Ejecutar el sistema**  
 
 ```bash
 python main.py
@@ -131,3 +156,4 @@ Intento 1 de 3
 Nombre de usuario:
 Contraseña:
 ```
+---
