@@ -10,8 +10,9 @@ class Servicios_Adicionales(Base):
     __tablename__ = 'servicios_adicionales'
 
     id_servicio = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    nombre_servicio = Column(String)
-    precio = Column(Float)
+    nombre_servicio = Column(String, nullable=False)
+    precio = Column(Float, nullable=False)
+    descripcion = Column(String, nullable=False)
     id_usuario_crea = Column(UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=False)
     id_usuario_edita = Column(UUID(as_uuid=True), ForeignKey("usuario.id_usuario"), nullable=True)
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -31,4 +32,4 @@ class Servicios_Adicionales(Base):
     )
     
     def __repr__(self):
-        return f"<Servicios_Adicionales(id={self.id_servicio}, nombre={self.nombre_servicio}, precio={self.precio})>"
+        return f"<Servicios_Adicionales(id={self.id_servicio}, nombre={self.nombre_servicio}, precio={self.precio}), descripcion={self.descripcion})>"

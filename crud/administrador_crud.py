@@ -3,6 +3,21 @@ from sqlalchemy.dialects.postgresql import UUID
 from entities.administrador import Administrador
 
 class AdministradorCRUD:
+    """
+    Módulo CRUD para la entidad Administrador.
+
+    Este archivo gestiona la persistencia de los administradores del sistema,
+    los cuales deben estar asociados a un usuario previamente creado.
+
+    Funciones principales:
+        - crear_administrador(db: Session, administrador: Administrador) -> Administrador
+        - obtener_administrador(db: Session, id_admin: UUID) -> Administrador
+        - obtener_administradores(db: Session, skip: int = 0, limit: int = 100) -> List[Administrador]
+        - eliminar_administrador(db: Session, id_admin: UUID) -> bool
+
+    Notas:
+        - Se valida que cada administrador esté asociado a un usuario existente.
+    """
     def __init__(self, db):
         self.db = db
         

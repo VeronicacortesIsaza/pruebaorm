@@ -3,7 +3,21 @@ from sqlalchemy.dialects.postgresql import UUID
 from entities.tipo_habitacion import Tipo_Habitacion
 
 class TipoHabitacionCRUD:
-    
+    """
+    Módulo CRUD para la entidad Tipo_Habitacion.
+
+    Permite gestionar los tipos de habitación que existen en el hotel
+    (sencilla, doble, suite, etc.).
+
+    Funciones principales:
+        - crear_tipo_habitacion(db: Session, tipo: Tipo_Habitacion) -> Tipo_Habitacion
+        - obtener_tipo_habitacion(db: Session, id_tipo: UUID) -> Tipo_Habitacion
+        - obtener_tipos_habitacion(db: Session) -> List[Tipo_Habitacion]
+        - eliminar_tipo_habitacion(db: Session, id_tipo: UUID) -> bool
+
+    Notas:
+        - Se valida que no se repitan tipos de habitación con el mismo nombre.
+    """
     def __init__(self, db):
         self.db = db
     @staticmethod

@@ -2,6 +2,25 @@ from sqlalchemy.orm import Session
 from entities.usuario import Usuario
 from sqlalchemy.dialects.postgresql import UUID
 class UsuarioCRUD:
+    """
+    Módulo CRUD para la entidad Usuario.
+
+    Administra la creación, consulta, actualización, eliminación y autenticación
+    de los usuarios que acceden al sistema.
+
+    Funciones principales:
+        - crear_usuario(db: Session, nuevo_usuario: Usuario) -> Usuario
+        - obtener_usuario(db: Session, id_usuario: UUID) -> Usuario
+        - obtener_usuario_por_nombre(db: Session, nombre_usuario: str) -> Usuario
+        - obtener_usuarios(db: Session, skip: int = 0, limit: int = 100) -> List[Usuario]
+        - actualizar_usuario(db: Session, id_usuario: UUID, id_usuario_edita: UUID, **kwargs) -> Usuario
+        - eliminar_usuario(db: Session, id_usuario: UUID) -> bool
+        - autenticar_usuario(self, nombre_usuario: str, contrasena: str) -> Optional[Usuario]
+
+    Notas:
+        - Valida que el nombre de usuario sea único y no exceda 50 caracteres.
+        - La contraseña no debe exceder 10 caracteres.
+    """
     def __init__(self, db):
         self.db = db
     @staticmethod

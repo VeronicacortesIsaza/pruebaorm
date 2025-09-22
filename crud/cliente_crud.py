@@ -3,6 +3,18 @@ from sqlalchemy.dialects.postgresql import UUID
 from entities.cliente import Cliente
 
 class ClienteCRUD:
+    """
+    Módulo CRUD para la entidad Cliente.
+
+    Proporciona operaciones para administrar los clientes del hotel.
+    Cada cliente debe estar asociado a un usuario existente.
+
+    Funciones principales:
+        - crear_cliente(db: Session, cliente: Cliente) -> Cliente
+        - obtener_cliente(db: Session, id_cliente: UUID) -> Cliente
+        - obtener_clientes(db: Session, skip: int = 0, limit: int = 100) -> List[Cliente]
+        - eliminar_cliente(db: Session, id_cliente: UUID) -> bool
+    """
     def __init__(self, db):
         self.db = db
         

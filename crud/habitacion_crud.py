@@ -1,8 +1,22 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import UUID
 from entities.habitacion import Habitacion
+from datetime import date
 
 class HabitacionCRUD:
+    """
+    Módulo CRUD para la entidad Habitación.
+
+    Define las operaciones relacionadas con la gestión de habitaciones en el hotel.
+    Incluye validaciones de número único y precio positivo.
+
+    Funciones principales:
+        - crear_habitacion(db: Session, habitacion: Habitacion) -> Habitacion
+        - obtener_habitacion(db: Session, id_habitacion: UUID) -> Habitacion
+        - obtener_habitaciones(db: Session) -> List[Habitacion]
+        - actualizar_habitacion(db: Session, id_habitacion: UUID, **kwargs) -> Habitacion
+        - eliminar_habitacion(db: Session, id_habitacion: UUID) -> bool
+    """
     def __init__(self, db):
         self.db = db
     @staticmethod

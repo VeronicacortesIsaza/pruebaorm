@@ -3,6 +3,17 @@ from sqlalchemy.dialects.postgresql import UUID
 from entities.reserva_servicios import Reserva_Servicios
 
 class ReservaServiciosCRUD:
+    """
+    Módulo CRUD para la entidad Reserva_Servicios.
+
+    Administra la relación entre las reservas y los servicios adicionales contratados.
+
+    Funciones principales:
+        - crear_reserva_servicio(db: Session, reserva_servicio: Reserva_Servicios) -> Reserva_Servicios
+        - obtener_reserva_servicio(db: Session, id_reserva_servicio: UUID) -> Reserva_Servicios
+        - obtener_reservas_servicios(db: Session, skip: int = 0, limit: int = 100) -> List[Reserva_Servicios]
+        - eliminar_reserva_servicio(db: Session, id_reserva_servicio: UUID) -> bool
+    """
     def __init__(self, db):
         self.db = db
     @staticmethod
